@@ -1,0 +1,1 @@
+{"version":3,"file":"global.css","sources":["global.scss"],"sourcesContent":["$primary-color: #ccc;\nbody {\n  background-color: $primary-color;\n}\n"],"mappings":"AACA,AAAA,IAAI,CAAC;EACH,gBAAgB,EAFF,IAAI,GAGnB","names":[],"sourceRoot":"/source/"}
