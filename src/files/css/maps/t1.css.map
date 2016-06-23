@@ -1,1 +1,0 @@
-{"version":3,"file":"t1.css","sources":["t1.scss"],"sourcesContent":["$t1-color: #4cc;\nbody {\n  background-color: $t1-color;\n}\n"],"mappings":"AACA,AAAA,IAAI,CAAC;EACH,gBAAgB,EAFP,IAAI,GAGd","names":[],"sourceRoot":"/source/"}
