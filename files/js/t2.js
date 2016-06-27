@@ -5,6 +5,6 @@
 require('./public/global');
 
 $(document).ready(function(){
-    console.log('Here is Template 1');
+    console.log('Here is Template 2');
 });
 

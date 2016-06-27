@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     es = require('event-stream'),
     inject = require('gulp-inject'),
     rename     = require('gulp-rename'),
-
+    htmlreplace = require('gulp-html-replace'),
     sass = require('gulp-sass'),
     uglify = require('gulp-uglify'),
     htmlmin = require('gulp-htmlmin'),
@@ -26,6 +26,13 @@ gulp.task('dev', ['injectsass', 'html:watch'], function(done){
     glob('files/js/*.js', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
+
+            gulp.src(entry)
+                .pipe(htmlreplace({
+                    'css': ''
+                }))
+                .pipe(gulp.dest('files/js'));
+
             var b = browserify({
                 entries: [entry],
                 extensions: ['.js'],
@@ -34,26 +41,26 @@ gulp.task('dev', ['injectsass', 'html:watch'], function(done){
                 packageCache: {},
                 fullPaths: true
             })
-            .plugin(watchify);
+                .plugin(watchify);
 
-        var bundle = function() {
-            return b.bundle()
-                .on('error', function(e){
-                    gutil.log(e);
-                })
-                .pipe(source(entry))
-                .pipe(buffer())
-                .pipe(gulp.dest('dist'))
-                .pipe(browserSync.stream());
-        };
+            var bundle = function() {
+                return b.bundle()
+                    .on('error', function(e){
+                        gutil.log(e);
+                    })
+                    .pipe(source(entry))
+                    .pipe(buffer())
+                    .pipe(gulp.dest('dist'))
+                    .pipe(browserSync.stream());
+            };
 
-        b.on('update', bundle);
-        b.on('log',gutil.log);
-        return bundle();
+            b.on('update', bundle);
+            b.on('log',gutil.log);
+            return bundle();
         });
         es.merge(tasks).on('end', done);
     });
-    
+
 
     browserSync.init({
         injectChanges: true,
@@ -99,6 +106,58 @@ gulp.task('injectsass', ['sass:watch'], function(done){
     });
 });
 
+gulp.task('injectcss', function(done){
+
+    function transformFilepath(filepath) {
+        return "require('" + filepath + "');";
+    }
+
+    var injectAppOptions = {
+        transform: transformFilepath,
+        starttag: '// inject:app',
+        endtag: '// endinject',
+        addRootSlash: false
+    };
+
+    glob('files/js/*.js', function(err, files){
+        if (err) done(err);
+        var tasks = files.map( function(entry){
+
+            var injectAppFiles = gulp.src(entry, { base: process.cwd() })
+                .pipe(rename({
+                    dirname: "../css",
+                    extname: ".css"
+                }));
+
+            gulp.src(entry)
+                .pipe(inject(injectAppFiles, injectAppOptions))
+                .pipe(gulp.dest('files/js'))
+                .pipe(browserSync.stream({match: '**/*.js'}));
+
+            var b = browserify(entry)
+                .transform(require('browserify-css'), {
+                    rootDir: '.',
+                    autoInject: 'true',
+                    minify: 'true'
+                });
+
+            function bundle (bundler) {   
+                return bundler
+                    .bundle()
+                    .on('error', function(e){
+                        gutil.log(e);
+                    })
+                    .pipe(source(entry))
+                    .pipe(gulp.dest('dist'))
+                    .pipe(browserSync.stream());
+            }
+
+            return bundle(b);
+        });
+        es.merge(tasks).on('end', done);
+    });
+});
+
 gulp.task('build', ['sass', 'html', 'image'], function(){
     function bundle (bundler) {   
         return bundler
@@ -115,12 +174,12 @@ gulp.task('build', ['sass', 'html', 'image'], function(){
     }
 
     var watcher = watchify( 
-        browserify('./src/files/js/index.js', watchify.args)
-            .transform(require('browserify-css'), {
-                rootDir: '.',
-                autoInject: 'true',
-                minify: 'true'
-            })
+        browserify('./files/js/t1.js', watchify.args)
+        .transform(require('browserify-css'), {
+            rootDir: '.',
+            autoInject: 'true',
+            minify: 'true'
+        })
     );
 
     bundle(watcher);
@@ -154,14 +213,14 @@ gulp.task('sass', ['sass:watch'], function () {
 
 /********** minify html **********/
 gulp.task('html', ['html:watch'], function() {
-    return gulp.src('./src/views/*.html')
+    return gulp.src('./views/*.html')
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('dist/views'));
 });
 
 /********** minify image **********/
 gulp.task('image', function() {
-    gulp.src('./src/files/img/*')
+    gulp.src('./files/img/*')
         .pipe(imagemin())
         .pipe(gulp.dest('dist/files/img'));
 });
