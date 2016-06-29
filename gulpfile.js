@@ -1,27 +1,41 @@
-var gulp = require('gulp'),
-    gutil = require('gulp-util'),
-    source = require('vinyl-source-stream'),
-    browserify = require('browserify'),
-    streamify = require('gulp-streamify'),
-    glob = require('glob'),
-    buffer = require('vinyl-buffer'),
-    es = require('event-stream'),
-    inject = require('gulp-inject'),
-    rename     = require('gulp-rename'),
-    htmlreplace = require('gulp-html-replace'),
-    sass = require('gulp-sass'),
-    uglify = require('gulp-uglify'),
-    htmlmin = require('gulp-htmlmin'),
-    imagemin = require('gulp-imagemin'),
-    pngquant = require('imagemin-pngquant'),
-    sourcemaps = require('gulp-sourcemaps'),
-    watchify = require('watchify'),
-    autoprefixer = require('autoprefixer'),
-    postcss      = require('gulp-postcss'),
-    browserSync = require('browser-sync').create(),
-    reload = browserSync.reload;
-gulp.task('dev', ['injectsass', 'html'], function(done){
-    glob('files/js/*.js', function(err, files){
+/**** Initialize ****/
+var 
+base = 'default', //project base path 
+gulp = require('gulp'),
+gutil = require('gulp-util'),
+source = require('vinyl-source-stream'),
+browserify = require('browserify'),
+streamify = require('gulp-streamify'),
+glob = require('glob'),
+buffer = require('vinyl-buffer'),
+es = require('event-stream'),
+inject = require('gulp-inject'),
+rename     = require('gulp-rename'),
+htmlreplace = require('gulp-html-replace'),
+sass = require('gulp-sass'),
+uglify = require('gulp-uglify'),
+htmlmin = require('gulp-htmlmin'),
+imagemin = require('gulp-imagemin'),
+pngquant = require('imagemin-pngquant'),
+sourcemaps = require('gulp-sourcemaps'),
+watchify = require('watchify'),
+autoprefixer = require('autoprefixer'),
+postcss      = require('gulp-postcss'),
+jshint = require('gulp-jshint'),
+browserSync = require('browser-sync').create(),
+reload = browserSync.reload;
+gulp.task('dev', ['injectsass', 'html:watch'], function(done){
+/**** Initialize ****/
+    function transformFilepath(filepath, file) {
+        return "require('../" + filepath.slice(-13) + "');";
+    }
+    var injectAppOptions = {
+        transform: transformFilepath,
+        starttag: '// inject:js',
+        endtag: '// endinject',
+        addRootSlash: false
+    };
+    glob('files/' + base + '/js/views/*.js', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
             gulp.src(entry)
@@ -31,7 +45,8 @@ gulp.task('dev', ['injectsass', 'html'], function(done){
                     keepBlockTags: true
                 }
                 ))
-                .pipe(gulp.dest('files/js'));
+                .pipe(inject(gulp.src('files/' + base + '/js/initialize.js', {read: false}), injectAppOptions))
+                .pipe(gulp.dest('files/' + base + '/js/views'));
             var b = browserify({
                 entries: [entry],
                 extensions: ['.js'],
@@ -61,43 +76,42 @@ gulp.task('dev', ['injectsass', 'html'], function(done){
         injectChanges: true,
         port: 3014,
         server:{ 
-            baseDir:  "./",
+            baseDir:  './',
             routes: {
-                "/files": "files"
+                '/files': 'files'
             }, 
-            index: "Views/index.html"
+            index: 'Views/' + base + '/index.html'
         },
         logFileChanges: false
     });
 });
 gulp.task('injectsass', ['sass:watch'], function(done){
-    var injectAppFiles = gulp.src('files/sass/public/*.scss', {read: false});
     function transformFilepath(filepath) {
         return '@import "' + filepath + '";';
     }
     var injectAppOptions = {
         transform: transformFilepath,
-        starttag: '// inject:app',
+        starttag: '// inject:scss',
         endtag: '// endinject',
         addRootSlash: false
     };
-    glob('files/sass/*.scss', function(err, files){
+    glob('files/' + base + '/sass/views/*.scss', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
             return gulp.src(entry)
-                .pipe(inject(injectAppFiles, injectAppOptions))
+                .pipe(inject(gulp.src('files/' + base + '/sass/initialize.scss', {read: false}), injectAppOptions))
                 .pipe(sourcemaps.init())
                 .pipe(sass().on('error', sass.logError))
                 .pipe(postcss([ autoprefixer({ browsers: ['last 2 versions'] }) ]))
                 .pipe(sourcemaps.write('./maps'))
-                .pipe(gulp.dest('files/css'))
-                .pipe(browserSync.stream({match: '**/*.css'}));
+                .pipe(gulp.dest('files/' + base + '/css/views'))
+                .pipe(browserSync.stream({match: '**/views/*.css'}));
         });
         es.merge(tasks).on('end', done);
     });
 });
 gulp.task('build', ['injectcss', 'html', 'image'], function(done){
-    glob('files/js/*.js', function(err, files){
+    glob('files/' + base + '/js/views/*.js', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
             var b = browserify({
@@ -110,7 +124,6 @@ gulp.task('build', ['injectcss', 'html', 'image'], function(done){
             })
             .transform(require('browserify-css'), {
                 rootDir: '.',
-
                 autoInject: 'true',
                 minify: 'true'
             })
@@ -136,11 +149,11 @@ gulp.task('build', ['injectcss', 'html', 'image'], function(done){
         injectChanges: true,
         port: 3015,
         server:{ 
-            baseDir:  "dist",
+            baseDir:  'dist',
             routes: {
-                "/files": "files"
+                '/files': 'files'
             }, 
-            index: "Views/index.html"
+            index: 'Views/' + base + '/index.html'
         },
         logFileChanges: false
     });
@@ -155,18 +168,18 @@ gulp.task('injectcss', function(done){
         endtag: '// endinject',
         addRootSlash: false
     };
-    glob('files/js/*.js', function(err, files){
+    glob('files/' + base + '/js/views/*.js', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
             var injectAppFiles = gulp.src(entry, { base: process.cwd() })
                 .pipe(rename({
-                    dirname: "../css",
+                    dirname: "../../css/views",
                     extname: ".css"
                 }));
             gulp.src(entry)
                 .pipe(inject(injectAppFiles, injectAppOptions))
-                .pipe(gulp.dest('files/js'))
-                .pipe(browserSync.stream({match: '**/*.js'}));
+                .pipe(gulp.dest('files/' + base + '/js/views'))
+                .pipe(browserSync.stream({match: '**/views/*.js'}));
             var b = browserify(entry)
                 .transform(require('browserify-css'), {
                     rootDir: '.',
@@ -189,12 +202,12 @@ gulp.task('injectcss', function(done){
     });
 });
 /********** minify html **********/
-gulp.task('html', ['html:watch'], function() {
-    return gulp.src('./Views/*.html')
+gulp.task('html', function() {
+    return gulp.src('./Views/' + base + '/*.html')
         .pipe(htmlreplace({
             'css': '',
             'js' : {
-                src: '../files/js',
+                src: '../../files/' + base + '/js/views',
                 tpl: '<script src="%s/%f.js"></script>'
             }
         }, {
@@ -202,25 +215,25 @@ gulp.task('html', ['html:watch'], function() {
         }
         ))
         .pipe(htmlmin({collapseWhitespace: true}))
-        .pipe(gulp.dest('dist/Views'));
+        .pipe(gulp.dest('dist/Views/' + base));
 });
 /********** minify image **********/
 gulp.task('image', function() {
-    gulp.src('./files/img/*')
+    gulp.src('./files/' + base + '/img/*')
         .pipe(imagemin({
             progressive: true,
             use: [pngquant()]
         }))
-        .pipe(gulp.dest('dist/files/img'));
+        .pipe(gulp.dest('dist/files/' + base + '/img'));
 });
 /********** watch sass **********/
 gulp.task('sass:watch', function () {
-    gulp.watch('files/sass/*.scss', ['injectsass'])
+    gulp.watch('files/' + base + '/sass/views/*.scss', ['injectsass'])
         .on('log', gutil.log);
 });
 /********** watch html **********/
 gulp.task('html:watch', function () {
-    gulp.watch('Views/*.html', ['html'])
-        .on('log', gutil.log);
-    reload();
+    gulp.watch('Views/' + base + '/*.html')
+        .on('log', gutil.log)
+        .on('change', reload);
 });
