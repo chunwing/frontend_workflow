@@ -50,6 +50,7 @@
   "dependencies": {
     "browserify": "^13.0.1",
     "gulp": "^3.9.1",
-    "jquery": "^3.0.0"
+    "jquery": "^3.0.0",
+    "jshint": "^2.9.2"
   }
 }

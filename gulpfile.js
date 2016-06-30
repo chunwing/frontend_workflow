@@ -24,8 +24,8 @@ postcss      = require('gulp-postcss'),
 jshint = require('gulp-jshint'),
 browserSync = require('browser-sync').create(),
 reload = browserSync.reload;
-gulp.task('dev', ['injectsass', 'html:watch'], function(done){
-/**** Initialize ****/
+/**** develop project *****/
+gulp.task('dev', ['scss', 'html:watch'], function(done){
     function transformFilepath(filepath, file) {
         return "require('../" + filepath.slice(-13) + "');";
     }
@@ -46,6 +46,8 @@ gulp.task('dev', ['injectsass', 'html:watch'], function(done){
                 }
                 ))
                 .pipe(inject(gulp.src('files/' + base + '/js/initialize.js', {read: false}), injectAppOptions))
+                .pipe(jshint())
+                .pipe(jshint.reporter('default'))
                 .pipe(gulp.dest('files/' + base + '/js/views'));
             var b = browserify({
                 entries: [entry],
@@ -85,32 +87,8 @@ gulp.task('dev', ['injectsass', 'html:watch'], function(done){
         logFileChanges: false
     });
 });
-gulp.task('injectsass', ['sass:watch'], function(done){
-    function transformFilepath(filepath) {
-        return '@import "' + filepath + '";';
-    }
-    var injectAppOptions = {
-        transform: transformFilepath,
-        starttag: '// inject:scss',
-        endtag: '// endinject',
-        addRootSlash: false
-    };
-    glob('files/' + base + '/sass/views/*.scss', function(err, files){
-        if (err) done(err);
-        var tasks = files.map( function(entry){
-            return gulp.src(entry)
-                .pipe(inject(gulp.src('files/' + base + '/sass/initialize.scss', {read: false}), injectAppOptions))
-                .pipe(sourcemaps.init())
-                .pipe(sass().on('error', sass.logError))
-                .pipe(postcss([ autoprefixer({ browsers: ['last 2 versions'] }) ]))
-                .pipe(sourcemaps.write('./maps'))
-                .pipe(gulp.dest('files/' + base + '/css/views'))
-                .pipe(browserSync.stream({match: '**/views/*.css'}));
-        });
-        es.merge(tasks).on('end', done);
-    });
-});
-gulp.task('build', ['injectcss', 'html', 'image'], function(done){
+/**** build project *****/
+gulp.task('build', ['css', 'html', 'image'], function(done){
     glob('files/' + base + '/js/views/*.js', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
@@ -158,7 +136,34 @@ gulp.task('build', ['injectcss', 'html', 'image'], function(done){
         logFileChanges: false
     });
 });
-gulp.task('injectcss', function(done){
+/**** compile scss *****/
+gulp.task('scss', ['scss:watch'], function(done){
+    function transformFilepath(filepath) {
+        return '@import "' + filepath + '";';
+    }
+    var injectAppOptions = {
+        transform: transformFilepath,
+        starttag: '// inject:scss',
+        endtag: '// endinject',
+        addRootSlash: false
+    };
+    glob('files/' + base + '/sass/views/*.scss', function(err, files){
+        if (err) done(err);
+        var tasks = files.map( function(entry){
+            return gulp.src(entry)
+                .pipe(inject(gulp.src('files/' + base + '/sass/initialize.scss', {read: false}), injectAppOptions))
+                .pipe(sourcemaps.init())
+                .pipe(sass().on('error', sass.logError))
+                .pipe(postcss([ autoprefixer({ browsers: ['last 2 versions'] }) ]))
+                .pipe(sourcemaps.write('./maps'))
+                .pipe(gulp.dest('files/' + base + '/css/views'))
+                .pipe(browserSync.stream({match: '**/views/*.css'}));
+        });
+        es.merge(tasks).on('end', done);
+    });
+});
+/**** inject css & bundle *****/
+gulp.task('css', ['scss'], function(done){
     function transformFilepath(filepath) {
         return "require('" + filepath + "');";
     }
@@ -201,9 +206,9 @@ gulp.task('injectcss', function(done){
         es.merge(tasks).on('end', done);
     });
 });
-/********** minify html **********/
+/**** minify html *****/
 gulp.task('html', function() {
-    return gulp.src('./Views/' + base + '/*.html')
+    return gulp.src('./Views/' + base + '/**/*.html')
         .pipe(htmlreplace({
             'css': '',
             'js' : {
@@ -217,7 +222,7 @@ gulp.task('html', function() {
         .pipe(htmlmin({collapseWhitespace: true}))
         .pipe(gulp.dest('dist/Views/' + base));
 });
-/********** minify image **********/
+/**** minify image ****/
 gulp.task('image', function() {
     gulp.src('./files/' + base + '/img/*')
         .pipe(imagemin({
@@ -226,14 +231,14 @@ gulp.task('image', function() {
         }))
         .pipe(gulp.dest('dist/files/' + base + '/img'));
 });
-/********** watch sass **********/
-gulp.task('sass:watch', function () {
-    gulp.watch('files/' + base + '/sass/views/*.scss', ['injectsass'])
+/**** watch scss ****/
+gulp.task('scss:watch', function () {
+    gulp.watch('files/' + base + '/sass/views/**/*.scss', ['scss'])
         .on('log', gutil.log);
 });
-/********** watch html **********/
+/**** watch html ****/
 gulp.task('html:watch', function () {
-    gulp.watch('Views/' + base + '/*.html')
+    gulp.watch('Views/' + base + '/**/*.html')
         .on('log', gutil.log)
         .on('change', reload);
 });
