@@ -1,6 +1,7 @@
 /**** Initialize ****/
 var 
-base = 'default', //project base path 
+<!-- build:proj -->
+<!-- endbuild -->
 gulp = require('gulp'),
 gutil = require('gulp-util'),
 source = require('vinyl-source-stream'),
@@ -22,8 +23,117 @@ watchify = require('watchify'),
 autoprefixer = require('autoprefixer'),
 postcss      = require('gulp-postcss'),
 jshint = require('gulp-jshint'),
+template = require('gulp-template'),
 browserSync = require('browser-sync').create(),
 reload = browserSync.reload;
+
+gulp.task('project', ['create:views'], function(){
+    var option, i = process.argv.indexOf("--init");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src('gulpfile.js')
+                .pipe(htmlreplace({
+                    'proj': "base = '" + option + "',"
+                }, {
+                    keepBlockTags: true
+                }
+                ))
+        .pipe(gulp.dest('./'));
+});
+gulp.task('create:views', ['create:files:js'], function(){
+    var option, i = process.argv.indexOf("--init");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src(['.ini/Views/default/*', '!.ini/Views/default/*.html'], { base: process.cwd() })
+                .pipe(rename({
+                    dirname: option
+                }))
+        .pipe(gulp.dest('Views'));
+});
+gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function(){
+    var option, i = process.argv.indexOf("--init");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src(['.ini/files/default/js/*'], { base: process.cwd() })
+                .pipe(rename({
+                    dirname: option + '/js'
+                }))
+        .pipe(gulp.dest('files'));
+});
+gulp.task('create:files:sass', function(){
+    var option, i = process.argv.indexOf("--init");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src(['.ini/files/default/sass/*'], { base: process.cwd() })
+                .pipe(rename({
+                    dirname: option + '/sass'
+                }))
+        .pipe(gulp.dest('files'));
+});
+gulp.task('create:files:img', function(){
+    var option, i = process.argv.indexOf("--init");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src(['.ini/files/default/img/*'], { base: process.cwd() })
+                .pipe(rename({
+                    dirname: option + '/img'
+                }))
+        .pipe(gulp.dest('files'));
+});
+gulp.task('create:html', function(){
+    var option, i = process.argv.indexOf("--template");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src('.ini/Views/default/default.html')
+        .pipe(template({name: option}))
+        .pipe(rename({
+            basename: option 
+        }))
+        .pipe(gulp.dest('Views/' + base));
+});
+
+gulp.task('create', ['create:js', 'create:scss'], function(){
+    var option, i = process.argv.indexOf("--template");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src('.ini/.html/default.html')
+        .pipe(template({name: option}))
+        .pipe(rename({
+            basename: option 
+        }))
+        .pipe(gulp.dest('Views/' + base));
+});
+gulp.task('create:js', function(){
+    var option, i = process.argv.indexOf("--template");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src('.ini/.js/default.js')
+        .pipe(rename({
+            basename: option 
+        }))
+        .pipe(gulp.dest('files/' + base + '/js/views'));
+
+});
+gulp.task('create:scss', function(){
+    var option, i = process.argv.indexOf("--template");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src('.ini/.sass/default.scss')
+        .pipe(rename({
+            basename: option 
+        }))
+        .pipe(gulp.dest('files/' + base + '/sass/views'));
+});
+
 /**** develop project *****/
 gulp.task('dev', ['scss', 'html:watch'], function(done){
     function transformFilepath(filepath, file) {
@@ -57,22 +167,23 @@ gulp.task('dev', ['scss', 'html:watch'], function(done){
                 packageCache: {},
                 fullPaths: true
             })
-            .plugin(watchify);
-        var bundle = function() {
-            return b.bundle()
-                .on('error', function(e){
-                    gutil.log(e);
-                })
-                .pipe(source(entry))
-                .pipe(buffer())
-                .pipe(gulp.dest('dist'))
-                .pipe(browserSync.stream());
-        };
-        b.on('update', bundle);
-        b.on('log',gutil.log);
-        return bundle();
+                .plugin(watchify);
+            var bundle = function() {
+                return b.bundle()
+                    .on('error', function(e){
+                        gutil.log(e);
+                    })
+                    .pipe(source(entry))
+                    .pipe(buffer())
+                    .pipe(gulp.dest('dist'))
+                    .pipe(browserSync.stream());
+            };
+            b.on('update', bundle);
+            b.on('log',gutil.log);
+            return bundle();
         });
         es.merge(tasks).on('end', done);
+
     });
     browserSync.init({
         injectChanges: true,
@@ -88,6 +199,7 @@ gulp.task('dev', ['scss', 'html:watch'], function(done){
     });
 });
 /**** build project *****/
+
 gulp.task('build', ['css', 'html', 'image'], function(done){
     glob('files/' + base + '/js/views/*.js', function(err, files){
         if (err) done(err);
@@ -100,26 +212,26 @@ gulp.task('build', ['css', 'html', 'image'], function(done){
                 packageCache: {},
                 fullPaths: true
             })
-            .transform(require('browserify-css'), {
-                rootDir: '.',
-                autoInject: 'true',
-                minify: 'true'
-            })
-            .plugin(watchify);
-        var bundle = function() {
-            return b.bundle()
-                .on('error', function(e){
-                    gutil.log(e);
+                .transform(require('browserify-css'), {
+                    rootDir: '.',
+                    autoInject: 'true',
+                    minify: 'true'
                 })
-                .pipe(source(entry))
-                .pipe(streamify(uglify()))
-                .pipe(buffer())
-                .pipe(gulp.dest('dist'))
-                .pipe(browserSync.stream());
-        };
-        b.on('update', bundle);
-        b.on('log',gutil.log);
-        return bundle();
+                .plugin(watchify);
+            var bundle = function() {
+                return b.bundle()
+                    .on('error', function(e){
+                        gutil.log(e);
+                    })
+                    .pipe(source(entry))
+                    .pipe(streamify(uglify()))
+                    .pipe(buffer())
+                    .pipe(gulp.dest('dist'))
+                    .pipe(browserSync.stream());
+            };
+            b.on('update', bundle);
+            b.on('log',gutil.log);
+            return bundle();
         });
         es.merge(tasks).on('end', done);
     });
