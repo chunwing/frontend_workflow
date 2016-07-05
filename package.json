@@ -23,7 +23,6 @@
   "homepage": "https://github.com/chunwing/frontend_workflow#readme",
   "devDependencies": {
     "autoprefixer": "^6.3.6",
-    "bootstrap": "^3.3.6",
     "browser-sync": "^2.13.0",
     "browserify-css": "^0.9.1",
     "event-stream": "^3.3.3",

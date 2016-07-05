@@ -1,4 +1,3 @@
-/**** Initialize ****/
 var 
 <!-- build:proj -->
 <!-- endbuild -->
@@ -28,63 +27,65 @@ browserSync = require('browser-sync').create(),
 reload = browserSync.reload;
 
 gulp.task('project', ['create:views'], function(){
-    var option, i = process.argv.indexOf("--init");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
     gulp.src('gulpfile.js')
-                .pipe(htmlreplace({
-                    'proj': "base = '" + option + "',"
-                }, {
-                    keepBlockTags: true
-                }
-                ))
+        .pipe(htmlreplace({
+            'proj': "base = '" + option + "',"
+        }, {
+            keepBlockTags: true
+        }
+        ))
         .pipe(gulp.dest('./'));
 });
 gulp.task('create:views', ['create:files:js'], function(){
-    var option, i = process.argv.indexOf("--init");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
     gulp.src(['.ini/Views/default/*', '!.ini/Views/default/*.html'], { base: process.cwd() })
-                .pipe(rename({
-                    dirname: option
-                }))
+        .pipe(rename({
+            dirname: option
+        }))
         .pipe(gulp.dest('Views'));
 });
 gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function(){
-    var option, i = process.argv.indexOf("--init");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
     gulp.src(['.ini/files/default/js/*'], { base: process.cwd() })
-                .pipe(rename({
-                    dirname: option + '/js'
-                }))
+        .pipe(rename({
+            dirname: option + '/js'
+        }))
         .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:sass', function(){
-    var option, i = process.argv.indexOf("--init");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
     gulp.src(['.ini/files/default/sass/*'], { base: process.cwd() })
-                .pipe(rename({
-                    dirname: option + '/sass'
-                }))
+        .pipe(rename({
+            dirname: option + '/sass'
+        }))
         .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:img', function(){
-    var option, i = process.argv.indexOf("--init");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
     gulp.src(['.ini/files/default/img/*'], { base: process.cwd() })
-                .pipe(rename({
-                    dirname: option + '/img'
-                }))
+        .pipe(rename({
+            dirname: option + '/img'
+        }))
         .pipe(gulp.dest('files'));
 });
+
+
 gulp.task('create:html', function(){
     var option, i = process.argv.indexOf("--template");
     if(i>-1) {
@@ -98,24 +99,27 @@ gulp.task('create:html', function(){
         .pipe(gulp.dest('Views/' + base));
 });
 
-gulp.task('create', ['create:js', 'create:scss'], function(){
-    var option, i = process.argv.indexOf("--template");
+gulp.task('template', ['create:js', 'create:scss'], function(){
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
-    gulp.src('.ini/.html/default.html')
-        .pipe(template({name: option}))
+    gulp.src('.ini/Views/default/default.html')
+        .pipe(template({
+            name: option,
+            dir: base
+        }))
         .pipe(rename({
             basename: option 
         }))
         .pipe(gulp.dest('Views/' + base));
 });
 gulp.task('create:js', function(){
-    var option, i = process.argv.indexOf("--template");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
-    gulp.src('.ini/.js/default.js')
+    gulp.src('.ini/files/default/js/views/default.js')
         .pipe(rename({
             basename: option 
         }))
@@ -123,11 +127,11 @@ gulp.task('create:js', function(){
 
 });
 gulp.task('create:scss', function(){
-    var option, i = process.argv.indexOf("--template");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
-    gulp.src('.ini/.sass/default.scss')
+    gulp.src('.ini/files/default/sass/views/default.scss')
         .pipe(rename({
             basename: option 
         }))
@@ -136,6 +140,10 @@ gulp.task('create:scss', function(){
 
 /**** develop project *****/
 gulp.task('dev', ['scss', 'html:watch'], function(done){
+    var option, i = process.argv.indexOf("--watch");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
     function transformFilepath(filepath, file) {
         return "require('../" + filepath.slice(-13) + "');";
     }
@@ -167,20 +175,20 @@ gulp.task('dev', ['scss', 'html:watch'], function(done){
                 packageCache: {},
                 fullPaths: true
             })
-                .plugin(watchify);
-            var bundle = function() {
-                return b.bundle()
-                    .on('error', function(e){
-                        gutil.log(e);
-                    })
-                    .pipe(source(entry))
-                    .pipe(buffer())
-                    .pipe(gulp.dest('dist'))
-                    .pipe(browserSync.stream());
-            };
-            b.on('update', bundle);
-            b.on('log',gutil.log);
-            return bundle();
+            .plugin(watchify);
+        var bundle = function() {
+            return b.bundle()
+                .on('error', function(e){
+                    gutil.log(e);
+                })
+                .pipe(source(entry))
+                .pipe(buffer())
+                .pipe(gulp.dest('dist'))
+                .pipe(browserSync.stream());
+        };
+        b.on('update', bundle);
+        b.on('log',gutil.log);
+        return bundle();
         });
         es.merge(tasks).on('end', done);
 
@@ -193,7 +201,7 @@ gulp.task('dev', ['scss', 'html:watch'], function(done){
             routes: {
                 '/files': 'files'
             }, 
-            index: 'Views/' + base + '/index.html'
+            index: 'Views/' + base + '/' + option + '.html'
         },
         logFileChanges: false
     });
@@ -201,6 +209,10 @@ gulp.task('dev', ['scss', 'html:watch'], function(done){
 /**** build project *****/
 
 gulp.task('build', ['css', 'html', 'image'], function(done){
+    var option, i = process.argv.indexOf("--watch");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
     glob('files/' + base + '/js/views/*.js', function(err, files){
         if (err) done(err);
         var tasks = files.map( function(entry){
@@ -212,26 +224,26 @@ gulp.task('build', ['css', 'html', 'image'], function(done){
                 packageCache: {},
                 fullPaths: true
             })
-                .transform(require('browserify-css'), {
-                    rootDir: '.',
-                    autoInject: 'true',
-                    minify: 'true'
+            .transform(require('browserify-css'), {
+                rootDir: '.',
+                autoInject: 'true',
+                minify: 'true'
+            })
+            .plugin(watchify);
+        var bundle = function() {
+            return b.bundle()
+                .on('error', function(e){
+                    gutil.log(e);
                 })
-                .plugin(watchify);
-            var bundle = function() {
-                return b.bundle()
-                    .on('error', function(e){
-                        gutil.log(e);
-                    })
-                    .pipe(source(entry))
-                    .pipe(streamify(uglify()))
-                    .pipe(buffer())
-                    .pipe(gulp.dest('dist'))
-                    .pipe(browserSync.stream());
-            };
-            b.on('update', bundle);
-            b.on('log',gutil.log);
-            return bundle();
+                .pipe(source(entry))
+                .pipe(streamify(uglify()))
+                .pipe(buffer())
+                .pipe(gulp.dest('dist'))
+                .pipe(browserSync.stream());
+        };
+        b.on('update', bundle);
+        b.on('log',gutil.log);
+        return bundle();
         });
         es.merge(tasks).on('end', done);
     });
@@ -243,7 +255,7 @@ gulp.task('build', ['css', 'html', 'image'], function(done){
             routes: {
                 '/files': 'files'
             }, 
-            index: 'Views/' + base + '/index.html'
+            index: 'Views/' + base + '/' + option + '.html'
         },
         logFileChanges: false
     });
