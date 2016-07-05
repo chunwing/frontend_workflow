@@ -1,6 +1,5 @@
 var 
 <!-- build:proj -->
-base = 'fwd',
 <!-- endbuild -->
 gulp = require('gulp'),
 gutil = require('gulp-util'),
@@ -27,8 +26,8 @@ template = require('gulp-template'),
 browserSync = require('browser-sync').create(),
 reload = browserSync.reload;
 
-gulp.task('p', ['create:views'], function(){
-    var option, i = process.argv.indexOf("--c");
+gulp.task('project', ['create:views'], function(){
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -42,7 +41,7 @@ gulp.task('p', ['create:views'], function(){
         .pipe(gulp.dest('./'));
 });
 gulp.task('create:views', ['create:files:js'], function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -53,7 +52,7 @@ gulp.task('create:views', ['create:files:js'], function(){
         .pipe(gulp.dest('Views'));
 });
 gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -64,7 +63,7 @@ gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function
         .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:sass', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -75,7 +74,7 @@ gulp.task('create:files:sass', function(){
         .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:img', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -86,8 +85,22 @@ gulp.task('create:files:img', function(){
         .pipe(gulp.dest('files'));
 });
 
-gulp.task('t', ['create:js', 'create:scss'], function(){
-    var option, i = process.argv.indexOf("--c");
+
+gulp.task('create:html', function(){
+    var option, i = process.argv.indexOf("--template");
+    if(i>-1) {
+        option = process.argv[i+1];
+    }
+    gulp.src('.ini/Views/default/default.html')
+        .pipe(template({name: option}))
+        .pipe(rename({
+            basename: option 
+        }))
+        .pipe(gulp.dest('Views/' + base));
+});
+
+gulp.task('template', ['create:js', 'create:scss'], function(){
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -102,7 +115,7 @@ gulp.task('t', ['create:js', 'create:scss'], function(){
         .pipe(gulp.dest('Views/' + base));
 });
 gulp.task('create:js', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -114,7 +127,7 @@ gulp.task('create:js', function(){
 
 });
 gulp.task('create:scss', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("--create");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -126,8 +139,8 @@ gulp.task('create:scss', function(){
 });
 
 /**** develop project *****/
-gulp.task('d', ['scss', 'html:watch'], function(done){
-    var option, i = process.argv.indexOf("--w");
+gulp.task('dev', ['scss', 'html:watch'], function(done){
+    var option, i = process.argv.indexOf("--watch");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -195,8 +208,8 @@ gulp.task('d', ['scss', 'html:watch'], function(done){
 });
 /**** build project *****/
 
-gulp.task('b', ['css', 'html', 'image'], function(done){
-    var option, i = process.argv.indexOf("--w");
+gulp.task('build', ['css', 'html', 'image'], function(done){
+    var option, i = process.argv.indexOf("--watch");
     if(i>-1) {
         option = process.argv[i+1];
     }
