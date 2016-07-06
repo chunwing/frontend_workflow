@@ -8,6 +8,8 @@
 <!-- endbuild -->
 /* jshint ignore:end */
 /**** Initialize ****/
-
 /**** Customise ****/
+onReady(function() { //onDOMContentLoaded                                              
+//customise function go here
+});
 /**** Customise ****/

@@ -27,7 +27,7 @@ browserSync = require('browser-sync').create(),
 reload = browserSync.reload;
 
 gulp.task('p', ['create:views'], function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -41,7 +41,7 @@ gulp.task('p', ['create:views'], function(){
         .pipe(gulp.dest('./'));
 });
 gulp.task('create:views', ['create:files:js'], function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -52,7 +52,7 @@ gulp.task('create:views', ['create:files:js'], function(){
         .pipe(gulp.dest('Views'));
 });
 gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -61,9 +61,14 @@ gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function
             dirname: option + '/js'
         }))
         .pipe(gulp.dest('files'));
+    gulp.src(['.ini/files/default/js/vendor/*'], { base: process.cwd() })
+        .pipe(rename({
+            dirname: option + '/js/vendor'
+        }))
+        .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:sass', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -74,7 +79,7 @@ gulp.task('create:files:sass', function(){
         .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:img', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -86,7 +91,7 @@ gulp.task('create:files:img', function(){
 });
 
 gulp.task('t', ['create:js', 'create:scss'], function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -101,7 +106,7 @@ gulp.task('t', ['create:js', 'create:scss'], function(){
         .pipe(gulp.dest('Views/' + base));
 });
 gulp.task('create:js', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -113,7 +118,7 @@ gulp.task('create:js', function(){
 
 });
 gulp.task('create:scss', function(){
-    var option, i = process.argv.indexOf("--c");
+    var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -126,7 +131,7 @@ gulp.task('create:scss', function(){
 
 /**** develop project *****/
 gulp.task('d', ['scss', 'html:watch'], function(done){
-    var option, i = process.argv.indexOf("--w");
+    var option, i = process.argv.indexOf("-w");
     if(i>-1) {
         option = process.argv[i+1];
     }
@@ -195,7 +200,7 @@ gulp.task('d', ['scss', 'html:watch'], function(done){
 /**** build project *****/
 
 gulp.task('b', ['css', 'html', 'image'], function(done){
-    var option, i = process.argv.indexOf("--w");
+    var option, i = process.argv.indexOf("-w");
     if(i>-1) {
         option = process.argv[i+1];
     }
