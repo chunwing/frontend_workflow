@@ -1,57 +1,122 @@
-/C/MAMP/htdocs/frontend_workflow
-├── dist
-│   ├── files
-│   │   └── default
-│   │       ├── img
-│   │       │   ├── apple-touch-icon.png
-│   │       │   ├── favicon
-│   │       │   ├── tile.png
-│   │       │   └── tile-wide.png
-│   │       └── js
-│   │           └── views
-│   │               └── index.js
-│   └── Views
-│       └── default
-│           ├── inc
-│           │   ├── footer.html
-│           │   └── header.html
-│           └── index.html
+# frontflow
+
+Provide a front-end web development workflow with 
+Isobar Front-end Code Standards. http://isobar-idev.github.io/code-standards/
+
+  - Front-end Develop workflow standardization
+  - Provide Front-end code Best Practices
+  - Provide quick start Front-end boilerplate
+
+You can also:
+  - Extend the Front-end boilerplate
+  - Modify the Workflow and Best Practices 
+  - Update the file structure
+
+### Version
+0.0.1
+
+### Tech
+
+* [node.js] - evented I/O for the backend
+* [Gulp] - the streaming build system
+* [browserify](http://browserify.org/) - require('modules') in the browser by bundling up dependencies.
+* [jQuery] - duh
+
+
+### Installation
+
+frontflow requires [Node.js](https://nodejs.org/) v4+ to run.
+
+You need Gulp installed globally:
+
+```sh
+$ npm i -g gulp
+```
+
+```sh
+$ svn co https://svn.isobar.hk/svn/isobar_developers/trunk/web/frontflow
+$ cd frontflow
+$ npm i
+```
+
+### Development
+
+Want to contribute? Great!
+
+Dillinger uses Gulp + Browserify for fast developing.
+Make a change in your file and instantanously see your updates!
+
+Open your favorite Terminal and run these commands.
+
+First Tab:
+```sh
+$ gulp p -c projectname
+```
+
+Second Tab:
+```sh
+$ gulp t -c templatename
+```
+
+Test and Watch Template:
+```sh
+$ gulp d -w templatename
+```
+
+
+### Build Project
+
+Build and Watch Single:
+```sh
+$ gulp b -w projectname
+```
+
+Build All:
+```sh
+$ gulp b
+```
+
+
+
+### Develop Tree
+
+frontflow
 ├── files
-│   └── default
+│   └── project_name
 │       ├── css
 │       │   └── views
-│       │       ├── index.css
-│       │       └── maps
-│       │           └── index.css.map
+│       │       ├── maps
+│       │       │   └── template_name.css.map
+│       │       └── template_name.css
 │       ├── img
-│       │   ├── apple-touch-icon.png
-│       │   ├── favicon
-│       │   │   └── favicon.ico
-│       │   ├── tile.png
-│       │   └── tile-wide.png
+│       │   └── favicon
 │       ├── js
 │       │   ├── initialize.js
 │       │   ├── vendor
+│       │   │   └── onready.js
 │       │   └── views
-│       │       ├── inc
-│       │       │   └── global.js
-│       │       └── index.js
+│       │       └── template_name.js
 │       └── sass
 │           ├── initialize.scss
 │           ├── vendor
-│           │   └── bootstrap.scss
 │           └── views
-│               ├── inc
-│               │   └── global.scss
-│               └── index.scss
-├── gulpfile.js
-├── package.json
-├── README.md
+│               └── template_name.scss
 └── Views
-    └── default
+    └── project_name
         ├── inc
-        │   ├── footer.html
-        │   └── header.html
-        └── index.html
+        └── template_name.html
 
-28 directories, 26 files
+### Production Tree
+
+frontflow
+├── dist
+│   ├── files
+│   │   └── project_name
+│   │       ├── img
+│   │       │   └── favicon
+│   │       └── js
+│   │           └── views
+│   │               └── template_name.js
+│   └── Views
+│       └── project_name
+│           └── template_name.html

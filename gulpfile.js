@@ -1,5 +1,6 @@
 var 
 <!-- build:proj -->
+base = 'project_name',
 <!-- endbuild -->
 gulp = require('gulp'),
 gutil = require('gulp-util'),

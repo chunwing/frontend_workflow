@@ -1,0 +1,1 @@
+{"version":3,"sources":["template_name.scss"],"names":[],"mappings":"AAAA,sBAAsB;AAItB,sBAAsB;AAEtB,qBAAqB;AACrB,qBAAqB","file":"template_name.css","sourcesContent":["/**** Initialize ****/\n// inject:scss\n@import \"files/project_name/sass/initialize.scss\";\n// endinject\n/**** Initialize ****/\n\n/**** Customise ****/\n/**** Customise ****/"],"sourceRoot":"/source/"}
