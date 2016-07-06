@@ -76,47 +76,42 @@ Build All:
 $ gulp b
 ```
 
-
-
-### Develop Tree
-
-frontflow
-+-- files
-|  +-- project_name
-│      +-- css
-│      │  	+-- views
-│      │        +-- maps
-│      │        │   +-- template_name.css.map
-│      │        +-- template_name.css
-│      +-- img
-│      │   +-- favicon
-│      +-- js
-│      |   +-- initialize.js
-│      │   +-- vendor
-│      │   │  +-- onready.js
-│      │   +-- views
-│      │      +-- template_name.js
-│      +-- sass
-│          +-- initialize.scss
-│          +-- vendor
-│          +-- views
-│              +-- template_name.scss
-+-- Views
-    +-- project_name
-        +-- inc
-        +-- template_name.html
+### Development Tree
+    +-- files
+        +-- project_name
+            +-- css
+                +-- views
+                    +-- maps
+                        +-- template_name.css.map
+                    +-- template_name.css
+            +-- img
+                +-- favicon
+            +-- js
+                +-- initialize.js
+                +-- vendor
+                    +-- onready.js
+                +-- views
+                    +-- template_name.js
+            +-- sass
+                +-- initialize.scss
+                +-- vendor
+                +-- views
+                    +-- template_name.scss
+            +-- Views
+                +-- project_name
+                    +-- inc
+                    +-- template_name.html
 
 ### Production Tree
 
-frontflow
-+-- dist
-    +-- files
-    |   +-- project_name
-    │       +-- img
-    │       │   +-- favicon
-    │       +-- js
-    │           +-- views
-    │               +-- template_name.js
-    +-- Views
-       +-- project_name
-           +-- template_name.html
+    +-- dist
+        +-- files
+            +-- project_name
+                +-- img
+                    +-- favicon
+                +-- js
+                    +-- views
+                        +-- template_name.js
+        +-- Views
+            +-- project_name
+                +-- template_name.html
