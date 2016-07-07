@@ -77,15 +77,20 @@ gulp.task('create:files:sass', function(){
             dirname: option + '/sass'
         }))
         .pipe(gulp.dest('files'));
+    gulp.src(['.ini/files/default/sass/vendor/*'], { base: process.cwd() })
+        .pipe(rename({
+            dirname: option + '/sass/vendor'
+        }))
+        .pipe(gulp.dest('files'));
 });
 gulp.task('create:files:img', function(){
     var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
     }
-    gulp.src(['.ini/files/default/img/*'], { base: process.cwd() })
+    gulp.src(['.ini/files/default/img/favicon/*'], { base: process.cwd() })
         .pipe(rename({
-            dirname: option + '/img'
+            dirname: option + '/img/favicon'
         }))
         .pipe(gulp.dest('files'));
 });

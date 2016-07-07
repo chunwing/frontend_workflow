@@ -22,6 +22,11 @@ You can also:
 * [browserify](http://browserify.org/) - require('modules') in the browser by bundling up dependencies.
 * [jQuery] - duh
 
+### Plugin
+
+* [autoprefixer](https://www.npmjs.com/package/autoprefixer)
+* [normalize.css](https://necolas.github.io/normalize.css/)
+
 
 ### Installation
 
@@ -48,12 +53,12 @@ Make a change in your file and instantanously see your updates!
 
 Open your favorite Terminal and run these commands.
 
-First Tab:
+Create Project:
 ```sh
 $ gulp p -c projectname
 ```
 
-Second Tab:
+Create Template:
 ```sh
 $ gulp t -c templatename
 ```
@@ -66,9 +71,9 @@ $ gulp d -w templatename
 
 ### Build Project
 
-Build and Watch Single:
+Build and Watch Template:
 ```sh
-$ gulp b -w projectname
+$ gulp b -w templatetname
 ```
 
 Build All:
@@ -77,6 +82,7 @@ $ gulp b
 ```
 
 ### Development Tree
+
     +-- files
         +-- project_name
             +-- css
@@ -86,6 +92,11 @@ $ gulp b
                     +-- template_name.css
             +-- img
                 +-- favicon
+					+-- browserconfig
+					+-- apple-touch-icon
+					+-- favicon
+					+-- tile
+					+-- tile-wide
             +-- js
                 +-- initialize.js
                 +-- vendor
@@ -95,12 +106,14 @@ $ gulp b
             +-- sass
                 +-- initialize.scss
                 +-- vendor
+				    +-- normalize.js
                 +-- views
                     +-- template_name.scss
             +-- Views
                 +-- project_name
                     +-- inc
                     +-- template_name.html
+					
 
 ### Production Tree
 
@@ -115,3 +128,9 @@ $ gulp b
         +-- Views
             +-- project_name
                 +-- template_name.html
+				
+				
+### Reference
+*	http://isobar-idev.github.io/code-standards/
+* 	http://www.initializr.com/
+*	https://github.com/audreyr/favicon-cheat-sheet
