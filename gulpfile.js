@@ -28,8 +28,12 @@ reload = browserSync.reload;
 
 gulp.task('p', ['create:views'], function(){
     var option, i = process.argv.indexOf("-c");
+    var j = process.argv.indexOf("-u");
     if(i>-1) {
         option = process.argv[i+1];
+    }
+    if(j>-1) {
+        option = process.argv[j+1];
     }
     gulp.src('gulpfile.js')
         .pipe(htmlreplace({
@@ -44,18 +48,17 @@ gulp.task('create:views', ['create:files:js'], function(){
     var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
-    }
     gulp.src(['.ini/Views/default/*', '!.ini/Views/default/*.html'], { base: process.cwd() })
         .pipe(rename({
             dirname: option
         }))
         .pipe(gulp.dest('Views'));
+    }
 });
 gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function(){
     var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
-    }
     gulp.src(['.ini/files/default/js/*'], { base: process.cwd() })
         .pipe(rename({
             dirname: option + '/js'
@@ -66,12 +69,12 @@ gulp.task('create:files:js', ['create:files:sass', 'create:files:img'], function
             dirname: option + '/js/vendor'
         }))
         .pipe(gulp.dest('files'));
+    }
 });
 gulp.task('create:files:sass', function(){
     var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
-    }
     gulp.src(['.ini/files/default/sass/*'], { base: process.cwd() })
         .pipe(rename({
             dirname: option + '/sass'
@@ -82,17 +85,18 @@ gulp.task('create:files:sass', function(){
             dirname: option + '/sass/vendor'
         }))
         .pipe(gulp.dest('files'));
+    }
 });
 gulp.task('create:files:img', function(){
     var option, i = process.argv.indexOf("-c");
     if(i>-1) {
         option = process.argv[i+1];
-    }
     gulp.src(['.ini/files/default/img/favicon/*'], { base: process.cwd() })
         .pipe(rename({
             dirname: option + '/img/favicon'
         }))
         .pipe(gulp.dest('files'));
+    }
 });
 
 gulp.task('t', ['create:js', 'create:scss'], function(){
