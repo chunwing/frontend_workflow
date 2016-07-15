@@ -1,5 +1,6 @@
 var 
 <!-- build:proj -->
+base = 'bupa',
 <!-- endbuild -->
 gulp = require('gulp'),
 gutil = require('gulp-util'),
@@ -357,7 +358,7 @@ gulp.task('image', function() {
 });
 /**** watch scss ****/
 gulp.task('scss:watch', function () {
-    gulp.watch('files/' + base + '/sass/views/**/*.scss', ['scss'])
+    gulp.watch('files/' + base + '/sass/**/*.scss', ['scss'])
         .on('log', gutil.log);
 });
 /**** watch html ****/

@@ -1,0 +1,8 @@
+#primary-nav{
+    .nav > li.dropdown.open {
+        position: static;
+        .dropdown-menu {
+            width: 100%;
+        }
+    }
+} 
